@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/url"
 	"os"
-	"strconv"
-	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -21,9 +19,6 @@ type Config struct {
 	DBSSLMode  string
 
 	LogLevel string
-
-	JWTSecret string
-	JWTTTL    time.Duration
 }
 
 func LoadConfig() (*Config, error) {
@@ -38,8 +33,6 @@ func LoadConfig() (*Config, error) {
 		DBName:     getEnv("POSTGRES_DB", "yadro-test-2026-db"),
 		DBSSLMode:  getEnv("POSTGRES_SSLMODE", "disable"),
 		LogLevel:   getEnv("LOG_LEVEL", "info"),
-		JWTSecret:  getEnv("JWT_SECRET", "secret123"),
-		JWTTTL:     secondsStringToDuration(getEnv("JWTTL_SECONDS", "14440")),
 	}
 
 	cfg.Port = ":" + cfg.Port
@@ -58,18 +51,18 @@ func getEnv(key, defaultValue string) string {
 	return value
 }
 
-func toInt(value string) int {
-	integer, err := strconv.Atoi(value)
-	if err != nil {
-		panic(fmt.Sprintf("invalid integer config value %q: %v", value, err))
-	}
-	return integer
-}
+// func toInt(value string) int {
+// 	integer, err := strconv.Atoi(value)
+// 	if err != nil {
+// 		panic(fmt.Sprintf("invalid integer config value %q: %v", value, err))
+// 	}
+// 	return integer
+// }
 
-func secondsStringToDuration(value string) time.Duration {
-	duration := toInt(value)
-	return time.Duration(duration) * time.Second
-}
+// func secondsStringToDuration(value string) time.Duration {
+// 	duration := toInt(value)
+// 	return time.Duration(duration) * time.Second
+// }
 
 func (c *Config) PostgresDSN() string {
 	ssl := c.DBSSLMode

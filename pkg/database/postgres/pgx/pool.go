@@ -29,7 +29,7 @@ func MustInitPool(connString string, l logger) *pgxpool.Pool {
 
 	pingAttemptLimit := 3
 	var pingErr error
-	for i := 0; i < pingAttemptLimit; i++ {
+	for i := range pingAttemptLimit {
 		pingCtx, pingCancel := context.WithTimeout(ctx, 5*time.Second)
 		pingErr = pool.Ping(pingCtx)
 		pingCancel()

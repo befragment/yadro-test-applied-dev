@@ -9,9 +9,8 @@ import (
 
 	"github.com/befragment/yadro-test-applied-dev/internal/config"
 	"github.com/befragment/yadro-test-applied-dev/internal/handler/routing"
-	"github.com/befragment/yadro-test-applied-dev/pkg/shutdown"
-
 	l "github.com/befragment/yadro-test-applied-dev/pkg/logger/zap"
+	"github.com/befragment/yadro-test-applied-dev/pkg/shutdown"
 )
 
 func main() {
