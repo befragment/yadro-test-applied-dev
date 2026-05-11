@@ -51,19 +51,6 @@ func getEnv(key, defaultValue string) string {
 	return value
 }
 
-// func toInt(value string) int {
-// 	integer, err := strconv.Atoi(value)
-// 	if err != nil {
-// 		panic(fmt.Sprintf("invalid integer config value %q: %v", value, err))
-// 	}
-// 	return integer
-// }
-
-// func secondsStringToDuration(value string) time.Duration {
-// 	duration := toInt(value)
-// 	return time.Duration(duration) * time.Second
-// }
-
 func (c *Config) PostgresDSN() string {
 	ssl := c.DBSSLMode
 	if ssl == "" {
