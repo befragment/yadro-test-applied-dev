@@ -22,14 +22,14 @@ COPY --from=builder /app/data /app/data
 
 ENTRYPOINT ["/service"]
 
-FROM alpine:3.20 AS app-debug
+# FROM alpine:3.20 AS app-debug
 
-WORKDIR /app
+# WORKDIR /app
 
-COPY --from=builder --chmod=755 /service /service
-COPY --from=builder /app/data /app/data
+# COPY --from=builder --chmod=755 /service /service
+# COPY --from=builder /app/data /app/data
 
-ENTRYPOINT ["/service"]
+# ENTRYPOINT ["/service"]
 
 FROM alpine:3.20 AS migrator
 

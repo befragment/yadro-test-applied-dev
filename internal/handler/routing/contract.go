@@ -16,5 +16,9 @@ type logHandler interface {
 }
 
 type logger interface {
-	Info(args ...interface{})
+	Infof(format string, args ...interface{})
+}
+
+type pathNormalizer interface {
+	Normalize(r *http.Request) string
 }

@@ -22,6 +22,7 @@ import (
 	"github.com/befragment/yadro-test-applied-dev/pkg/clock"
 	database "github.com/befragment/yadro-test-applied-dev/pkg/database/postgres/pgx"
 	l "github.com/befragment/yadro-test-applied-dev/pkg/logger/zap"
+	netnormalizer "github.com/befragment/yadro-test-applied-dev/pkg/net/normalizer"
 	"github.com/befragment/yadro-test-applied-dev/pkg/shutdown"
 )
 
@@ -62,7 +63,8 @@ func main() {
 	nodeHandler := handlernode.NewNodeHandler(nodeSvc)
 	logHandler := handlerlogs.NewLogHandler(logSvc)
 
-	router := routing.Router(logger, nodeHandler, logHandler)
+	pathNormalizer := netnormalizer.NewServeMuxPathNormalizer()
+	router := routing.Router(logger, pathNormalizer, nodeHandler, logHandler)
 	var wg sync.WaitGroup
 
 	logger.Info("Starting service...")

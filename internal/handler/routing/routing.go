@@ -4,16 +4,18 @@ import (
 	"net/http"
 
 	"github.com/befragment/yadro-test-applied-dev/internal/handler/common"
+	"github.com/befragment/yadro-test-applied-dev/internal/handler/middleware/logging"
 )
 
 func Router(
 	logger logger,
+	pathNormalizer pathNormalizer,
 	nodeHandler nodeHandler,
 	logHandler logHandler,
 ) http.Handler {
 	mux := http.NewServeMux()
 
-	// GET /api/v1/info
+	// GET /api/v1/ping
 	mux.HandleFunc("GET /api/v1/ping", common.Ping)
 
 	// POST /api/v1/parse/
@@ -31,5 +33,5 @@ func Router(
 	// GET /api/v1/log/{log_id}
 	mux.HandleFunc("GET /api/v1/log/", logHandler.GetLog)
 
-	return mux
+	return logging.LoggingMiddleware(logger, pathNormalizer)(mux)
 }
