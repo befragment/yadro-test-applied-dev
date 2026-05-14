@@ -126,3 +126,6 @@ curl -sS -w "\nHTTP %{http_code}\n" "http://localhost:8080/api/v1/log/999999999"
 
 > Получение статус кода 400 при отправке невалидного .zip 
 ![](assets/invalid_zip_400.png)
+
+> Коллекция Postman
+![](assets/postman.png)

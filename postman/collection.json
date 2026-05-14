@@ -1,0 +1,742 @@
+{
+  "info": {
+    "_postman_id": "yadro-log-parser-api-v1",
+    "name": "Yadro Log Parser API",
+    "description": "API tests for the Yadro log parser service.\n\nWorkflow:\n1. Run **Parse** to upload an archive — `log_id` and `node_id` are saved automatically.\n2. Use the saved variables in **Log**, **Topology**, **Node**, **Port** requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "archive_path",
+      "value": "/data/test.zip",
+      "description": "Absolute path to the .zip archive on the server",
+      "type": "string"
+    },
+    {
+      "key": "log_id",
+      "value": "1",
+      "description": "Set automatically after a successful Parse request",
+      "type": "string"
+    },
+    {
+      "key": "node_id",
+      "value": "1",
+      "description": "Set automatically after a successful Get Topology request",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Ping",
+      "item": [
+        {
+          "name": "Ping – health check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ping",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "ping"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Content-Type is application/json', function () {",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+                  "});",
+                  "",
+                  "pm.test('Response body contains pong', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('message');",
+                  "    pm.expect(json.message).to.eql('pong');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Parse",
+      "item": [
+        {
+          "name": "Parse – success (saves log_id)",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/parse/?path={{archive_path}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "parse", ""],
+              "query": [
+                {
+                  "key": "path",
+                  "value": "{{archive_path}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Content-Type is application/json', function () {",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+                  "});",
+                  "",
+                  "pm.test('Response contains numeric log_id', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('log_id');",
+                  "    pm.expect(json.log_id).to.be.a('number');",
+                  "    pm.expect(json.log_id).to.be.above(0);",
+                  "    pm.collectionVariables.set('log_id', json.log_id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Parse – 400 missing path param",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/parse/",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "parse", ""]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error message: path is required', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('error');",
+                  "    pm.expect(json.error).to.eql('path is required');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Parse – 404 archive file not found",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/parse/?path=/nonexistent/archive.zip",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "parse", ""],
+              "query": [
+                {
+                  "key": "path",
+                  "value": "/nonexistent/archive.zip"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Error message: file not found', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('error');",
+                  "    pm.expect(json.error).to.eql('file not found');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Parse – 400 corrupted/invalid archive",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/parse/?path=/data/broken.zip",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "parse", ""],
+              "query": [
+                {
+                  "key": "path",
+                  "value": "/data/broken.zip"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error message: broken zip', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('error');",
+                  "    pm.expect(json.error).to.eql('broken zip');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Log",
+      "item": [
+        {
+          "name": "Get log – success",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/log/{{log_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "log", "{{log_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Content-Type is application/json', function () {",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+                  "});",
+                  "",
+                  "pm.test('Response contains required log fields', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('ID');",
+                  "    pm.expect(json).to.have.property('Status');",
+                  "    pm.expect(json).to.have.property('UploadedAt');",
+                  "    pm.expect(json).to.have.property('NodesCount');",
+                  "    pm.expect(json).to.have.property('PortsCount');",
+                  "    pm.expect(json.ID).to.be.a('number').and.above(0);",
+                  "    pm.expect(json.Status).to.be.a('string').and.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get log – 400 non-numeric log_id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/log/abc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "log", "abc"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error message: log_id is required', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.eql('log_id is required');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get log – 400 zero log_id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/log/0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "log", "0"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error message: log_id is required', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.eql('log_id is required');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get log – 404 log not found",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/log/999999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "log", "999999"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Error message: log not found', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.eql('log not found');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Topology",
+      "item": [
+        {
+          "name": "Get topology – success (saves node_id)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/topology/{{log_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "topology", "{{log_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Content-Type is application/json', function () {",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+                  "});",
+                  "",
+                  "pm.test('Response contains topology fields', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('log_id');",
+                  "    pm.expect(json).to.have.property('hosts');",
+                  "    pm.expect(json).to.have.property('switches');",
+                  "    pm.expect(json.hosts).to.be.an('array');",
+                  "    pm.expect(json.switches).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Save first available node_id', function () {",
+                  "    const json = pm.response.json();",
+                  "    const allNodes = [...(json.hosts || []), ...(json.switches || [])];",
+                  "    if (allNodes.length > 0) {",
+                  "        pm.collectionVariables.set('node_id', allNodes[0].id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get topology – 400 non-numeric log_id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/topology/abc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "topology", "abc"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error message: log_id is required', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.eql('log_id is required');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get topology – 400 zero log_id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/topology/0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "topology", "0"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error message: log_id is required', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.eql('log_id is required');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get topology – 404 topology not found",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/topology/999999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "topology", "999999"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Error message: topology not found', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.eql('topology not found');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Node",
+      "item": [
+        {
+          "name": "Get node – success",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/node/{{node_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "node", "{{node_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Content-Type is application/json', function () {",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+                  "});",
+                  "",
+                  "pm.test('Response contains required node fields', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('description');",
+                  "    pm.expect(json).to.have.property('node_guid');",
+                  "    pm.expect(json).to.have.property('system_image_guid');",
+                  "    pm.expect(json).to.have.property('port_guid');",
+                  "    pm.expect(json).to.have.property('node_type');",
+                  "    pm.expect(json).to.have.property('num_ports');",
+                  "    pm.expect(json).to.have.property('class_version');",
+                  "    pm.expect(json).to.have.property('base_version');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get node – 400 non-numeric node_id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/node/abc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "node", "abc"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error message: node_id is required', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.eql('node_id is required');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get node – 400 zero node_id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/node/0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "node", "0"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error message: node_id is required', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.eql('node_id is required');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get node – 404 node not found",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/node/999999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "node", "999999"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Error message: node not found', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.eql('node not found');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Port",
+      "item": [
+        {
+          "name": "Get ports – success",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/port/{{node_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "port", "{{node_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Content-Type is application/json', function () {",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+                  "});",
+                  "",
+                  "pm.test('Response is an array of ports', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Each port has required fields', function () {",
+                  "    const json = pm.response.json();",
+                  "    json.forEach(function (port) {",
+                  "        pm.expect(port).to.have.property('node_guid');",
+                  "        pm.expect(port).to.have.property('port_guid');",
+                  "        pm.expect(port).to.have.property('port_num');",
+                  "        pm.expect(port).to.have.property('lid');",
+                  "        pm.expect(port).to.have.property('port_state');",
+                  "        pm.expect(port).to.have.property('port_phy_state');",
+                  "        pm.expect(port).to.have.property('link_width_active');",
+                  "        pm.expect(port).to.have.property('link_speed_active');",
+                  "        pm.expect(port).to.have.property('link_round_trip_latency');",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get ports – 400 non-numeric node_id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/port/abc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "port", "abc"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error message: node_id is required', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.eql('node_id is required');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get ports – 400 zero node_id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/port/0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "port", "0"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error message: node_id is required', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.eql('node_id is required');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get ports – 404 ports not found",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/port/999999",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "port", "999999"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Error message: ports not found', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.eql('ports not found');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
