@@ -9,7 +9,6 @@ import (
 
 type txKey struct{}
 
-
 type Manager struct {
 	pool *pgxpool.Pool
 }

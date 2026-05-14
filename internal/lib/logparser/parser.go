@@ -22,7 +22,7 @@ func NewLogFileParserAdapter() *LogFileParserAdapter {
 	return &LogFileParserAdapter{}
 }
 
-func (l *LogFileParserAdapter) ParseArchive(path string) (domain.ParsedLog, error) {
+func (l *LogFileParserAdapter) ParseArchive(path string) (_ domain.ParsedLog, retErr error) {
 	r, err := zip.OpenReader(path)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
@@ -31,7 +31,11 @@ func (l *LogFileParserAdapter) ParseArchive(path string) (domain.ParsedLog, erro
 
 		return domain.ParsedLog{}, fmt.Errorf("%w: open zip %q: %v", ErrBrokenZip, path, err)
 	}
-	defer r.Close()
+	defer func() {
+		if err := r.Close(); err != nil && retErr == nil {
+			retErr = fmt.Errorf("logparser: close zip %q: %w", path, err)
+		}
+	}()
 
 	dbCSV, sharpInfo, err := findRequiredFiles(r)
 	if err != nil {
@@ -104,8 +108,11 @@ func readZipFile(f *zip.File) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rc.Close()
-	return io.ReadAll(rc)
+	data, err := io.ReadAll(rc)
+	if closeErr := rc.Close(); closeErr != nil && err == nil {
+		return nil, closeErr
+	}
+	return data, err
 }
 
 type dbSection int
@@ -117,7 +124,6 @@ const (
 	sectionSwitches
 	sectionSysInfo
 )
-
 
 type sysInfoRow struct {
 	nodeGUID     string
@@ -192,7 +198,7 @@ func parseDBCSV(data []byte) ([]domain.Node, []domain.Port, []sysInfoRow, error)
 			continue
 		}
 
-		// header row 
+		// header row
 		if headers == nil {
 			headers = splitCSVLine(line)
 			continue
@@ -288,7 +294,6 @@ func splitCSVLine(line string) []string {
 	return fields
 }
 
-
 func atoi(s string) (int, error) {
 	s = strings.TrimSpace(s)
 	if s == "" || strings.EqualFold(s, "n/a") {
@@ -312,8 +317,6 @@ func atoiNA(s string) (int, error) {
 	}
 	return atoi(s)
 }
-
-
 
 func parseNode(row map[string]string) (domain.Node, error) {
 	numPorts, err := atoi(row["NumPorts"])

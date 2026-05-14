@@ -15,8 +15,8 @@ type NodeRepository struct {
 
 func NewNodeRepository(conn connection) *NodeRepository {
 	return &NodeRepository{
-		conn: conn, 
-		sb: squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar),
+		conn: conn,
+		sb:   squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar),
 	}
 }
 

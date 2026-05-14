@@ -25,4 +25,3 @@ func (s *NodeService) GetNodePorts(ctx context.Context, nodeID int) ([]domain.Po
 func (s *NodeService) GetNodesByLogID(ctx context.Context, logID int64) ([]domain.Node, error) {
 	return s.repo.GetNodesByLogID(ctx, logID)
 }
-

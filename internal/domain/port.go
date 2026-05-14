@@ -13,7 +13,7 @@ type Port struct {
 
 	LID int
 
-	PortState int
+	PortState    int
 	PortPhyState int
 
 	LinkWidthActive int

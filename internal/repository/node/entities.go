@@ -23,17 +23,17 @@ type nodeDB struct {
 }
 
 type portDB struct {
-	ID                   int64         `db:"id"`
-	NodeID               int64         `db:"node_id"`
+	ID                   int64          `db:"id"`
+	NodeID               int64          `db:"node_id"`
 	NodeGUID             sql.NullString `db:"node_guid"`
-	PortGUID             string        `db:"port_guid"`
-	PortNum              int           `db:"port_num"`
-	LID                  sql.NullInt32 `db:"lid"`
-	PortState            sql.NullInt32 `db:"port_state"`
-	PortPhyState         sql.NullInt32 `db:"port_phy_state"`
-	LinkWidthActive      sql.NullInt32 `db:"link_width_active"`
-	LinkSpeedActive      sql.NullInt32 `db:"link_speed_active"`
-	LinkRoundTripLatency sql.NullInt32 `db:"link_round_trip_latency"`
+	PortGUID             string         `db:"port_guid"`
+	PortNum              int            `db:"port_num"`
+	LID                  sql.NullInt32  `db:"lid"`
+	PortState            sql.NullInt32  `db:"port_state"`
+	PortPhyState         sql.NullInt32  `db:"port_phy_state"`
+	LinkWidthActive      sql.NullInt32  `db:"link_width_active"`
+	LinkSpeedActive      sql.NullInt32  `db:"link_speed_active"`
+	LinkRoundTripLatency sql.NullInt32  `db:"link_round_trip_latency"`
 }
 
 func mapNodeDBToDomain(n nodeDB) domain.Node {

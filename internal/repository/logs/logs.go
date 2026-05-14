@@ -2,6 +2,7 @@ package logs
 
 import (
 	"context"
+
 	"github.com/Masterminds/squirrel"
 	"github.com/befragment/yadro-test-applied-dev/internal/domain"
 )
@@ -13,8 +14,8 @@ type LogsRepository struct {
 
 func NewLogsRepository(conn connection) *LogsRepository {
 	return &LogsRepository{
-		conn: conn, 
-		sb: squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar),
+		conn: conn,
+		sb:   squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar),
 	}
 }
 
@@ -42,7 +43,7 @@ func (r *LogsRepository) FetchMeta(ctx context.Context, logID int64) (domain.Log
 	}
 
 	return mapLogDBToDomain(row), nil
-} 
+}
 
 func (r *LogsRepository) Create(
 	ctx context.Context,

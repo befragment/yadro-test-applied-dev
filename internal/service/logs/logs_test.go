@@ -8,11 +8,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
-
 	"github.com/befragment/yadro-test-applied-dev/internal/domain"
 	"github.com/befragment/yadro-test-applied-dev/internal/service/logs"
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestParseLogFiles(t *testing.T) {
@@ -39,11 +38,11 @@ func TestParseLogFiles(t *testing.T) {
 		path    string
 		prepare func(
 			logparser *Mocklogparser,
-			logrepo   *Mocklogrepo,
-			noderepo  *Mocknoderepo,
-			portrepo  *Mockportrepo,
-			txm       *Mocktxmanager,
-			clock     *Mockclock,
+			logrepo *Mocklogrepo,
+			noderepo *Mocknoderepo,
+			portrepo *Mockportrepo,
+			txm *Mocktxmanager,
+			clock *Mockclock,
 		)
 		wantLogID   int64
 		wantErr     error
@@ -54,11 +53,11 @@ func TestParseLogFiles(t *testing.T) {
 			path: "archive.zip",
 			prepare: func(
 				logparser *Mocklogparser,
-				logrepo   *Mocklogrepo,
-				noderepo  *Mocknoderepo,
-				portrepo  *Mockportrepo,
-				txm       *Mocktxmanager,
-				clock     *Mockclock,
+				logrepo *Mocklogrepo,
+				noderepo *Mocknoderepo,
+				portrepo *Mockportrepo,
+				txm *Mocktxmanager,
+				clock *Mockclock,
 			) {
 				logparser.EXPECT().
 					ParseArchive("archive.zip").
@@ -104,11 +103,11 @@ func TestParseLogFiles(t *testing.T) {
 			path: "missing.zip",
 			prepare: func(
 				logparser *Mocklogparser,
-				logrepo   *Mocklogrepo,
-				noderepo  *Mocknoderepo,
-				portrepo  *Mockportrepo,
-				txm       *Mocktxmanager,
-				clock     *Mockclock,
+				logrepo *Mocklogrepo,
+				noderepo *Mocknoderepo,
+				portrepo *Mockportrepo,
+				txm *Mocktxmanager,
+				clock *Mockclock,
 			) {
 				logparser.EXPECT().
 					ParseArchive("missing.zip").
@@ -121,11 +120,11 @@ func TestParseLogFiles(t *testing.T) {
 			path: "broken.zip",
 			prepare: func(
 				logparser *Mocklogparser,
-				logrepo   *Mocklogrepo,
-				noderepo  *Mocknoderepo,
-				portrepo  *Mockportrepo,
-				txm       *Mocktxmanager,
-				clock     *Mockclock,
+				logrepo *Mocklogrepo,
+				noderepo *Mocknoderepo,
+				portrepo *Mockportrepo,
+				txm *Mocktxmanager,
+				clock *Mockclock,
 			) {
 				logparser.EXPECT().
 					ParseArchive("broken.zip").
@@ -138,11 +137,11 @@ func TestParseLogFiles(t *testing.T) {
 			path: "archive.zip",
 			prepare: func(
 				logparser *Mocklogparser,
-				logrepo   *Mocklogrepo,
-				noderepo  *Mocknoderepo,
-				portrepo  *Mockportrepo,
-				txm       *Mocktxmanager,
-				clock     *Mockclock,
+				logrepo *Mocklogrepo,
+				noderepo *Mocknoderepo,
+				portrepo *Mockportrepo,
+				txm *Mocktxmanager,
+				clock *Mockclock,
 			) {
 				logparser.EXPECT().
 					ParseArchive("archive.zip").
@@ -169,11 +168,11 @@ func TestParseLogFiles(t *testing.T) {
 			path: "archive.zip",
 			prepare: func(
 				logparser *Mocklogparser,
-				logrepo   *Mocklogrepo,
-				noderepo  *Mocknoderepo,
-				portrepo  *Mockportrepo,
-				txm       *Mocktxmanager,
-				clock     *Mockclock,
+				logrepo *Mocklogrepo,
+				noderepo *Mocknoderepo,
+				portrepo *Mockportrepo,
+				txm *Mocktxmanager,
+				clock *Mockclock,
 			) {
 				logparser.EXPECT().
 					ParseArchive("archive.zip").
@@ -204,11 +203,11 @@ func TestParseLogFiles(t *testing.T) {
 			path: "archive.zip",
 			prepare: func(
 				logparser *Mocklogparser,
-				logrepo   *Mocklogrepo,
-				noderepo  *Mocknoderepo,
-				portrepo  *Mockportrepo,
-				txm       *Mocktxmanager,
-				clock     *Mockclock,
+				logrepo *Mocklogrepo,
+				noderepo *Mocknoderepo,
+				portrepo *Mockportrepo,
+				txm *Mocktxmanager,
+				clock *Mockclock,
 			) {
 				logparser.EXPECT().
 					ParseArchive("archive.zip").
@@ -253,11 +252,11 @@ func TestParseLogFiles(t *testing.T) {
 			path: "archive.zip",
 			prepare: func(
 				logparser *Mocklogparser,
-				logrepo   *Mocklogrepo,
-				noderepo  *Mocknoderepo,
-				portrepo  *Mockportrepo,
-				txm       *Mocktxmanager,
-				clock     *Mockclock,
+				logrepo *Mocklogrepo,
+				noderepo *Mocknoderepo,
+				portrepo *Mockportrepo,
+				txm *Mocktxmanager,
+				clock *Mockclock,
 			) {
 				logparser.EXPECT().
 					ParseArchive("archive.zip").
@@ -299,11 +298,11 @@ func TestParseLogFiles(t *testing.T) {
 			path: "archive.zip",
 			prepare: func(
 				logparser *Mocklogparser,
-				logrepo   *Mocklogrepo,
-				noderepo  *Mocknoderepo,
-				portrepo  *Mockportrepo,
-				txm       *Mocktxmanager,
-				clock     *Mockclock,
+				logrepo *Mocklogrepo,
+				noderepo *Mocknoderepo,
+				portrepo *Mockportrepo,
+				txm *Mocktxmanager,
+				clock *Mockclock,
 			) {
 				logparser.EXPECT().
 					ParseArchive("archive.zip").
@@ -355,11 +354,11 @@ func TestParseLogFiles(t *testing.T) {
 			path: "archive.zip",
 			prepare: func(
 				logparser *Mocklogparser,
-				logrepo   *Mocklogrepo,
-				noderepo  *Mocknoderepo,
-				portrepo  *Mockportrepo,
-				txm       *Mocktxmanager,
-				clock     *Mockclock,
+				logrepo *Mocklogrepo,
+				noderepo *Mocknoderepo,
+				portrepo *Mockportrepo,
+				txm *Mocktxmanager,
+				clock *Mockclock,
 			) {
 				logparser.EXPECT().
 					ParseArchive("archive.zip").

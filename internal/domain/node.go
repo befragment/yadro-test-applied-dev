@@ -1,19 +1,19 @@
 package domain
 
 type Node struct {
-	ID              int64
-	LogID           int64
+	ID    int64
+	LogID int64
 
-	Description     string
+	Description string
 
 	NodeGUID        string
 	SystemImageGUID string
 	PortGUID        string
 
-	NodeType        int
-	NumPorts        int
-	ClassVersion    int
-	BaseVersion     int
+	NodeType     int
+	NumPorts     int
+	ClassVersion int
+	BaseVersion  int
 
 	// Switch-only fields. Nil means "not applicable / not present".
 	LinearFDBCap    *int
@@ -29,11 +29,11 @@ type NodeInfo struct {
 	NodeGUID string
 
 	SerialNumber string
-	PartNumber string
-	Revision string
-	ProductName string
+	PartNumber   string
+	Revision     string
+	ProductName  string
 
-	Endianness int
+	Endianness             int
 	EnableEndiannessPerJob int
 	ReproducibilityDisable int
 }

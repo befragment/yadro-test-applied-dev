@@ -1,8 +1,10 @@
 package logs
 
-import "time"
+import (
+	"time"
 
-import "github.com/befragment/yadro-test-applied-dev/internal/domain"
+	"github.com/befragment/yadro-test-applied-dev/internal/domain"
+)
 
 type logDB struct {
 	ID         int64     `db:"id"`
